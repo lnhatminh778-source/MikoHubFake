@@ -58,32 +58,30 @@ LoadConfig()
 -- Global Variables
 local ReturnToOldPos = false
 local savedPosition = nil
-local ScanDelay = 0.03
+local ScanDelay = 0.03                                                                                                   local InstantHoldEnabled = true
 local DiscordLink = "https://discord.gg/7ZgvMqEpKG"
 local isHopping = false
 
--- Save Script for Teleport (REWRITTEN & STABLE)
+-- Save Script for Teleport (REWRITTEN & PERMANENT LOOP)
 local function SaveScriptForTeleport()
-    if queueTeleport then
+    local teleQueue = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport) or queue_on_teleport
+    if teleQueue then
         pcall(function()
-            queueTeleport([[
-                repeat task.wait(0.5) until game:IsLoaded() and game:GetService("Players").LocalPlayer
-                task.wait(1)
+            teleQueue([[
+                repeat task.wait() until game:IsLoaded() and game:GetService("Players").LocalPlayer
                 _G.MIKO_HUB_RUNNING = nil
-                local scriptUrl = "https://raw.githubusercontent.com/lnhatminh778-source/MikoHubFake/refs/heads/main/MikoHubFake.txt"
-                local success, err = pcall(function()
-                    loadstring(game:HttpGet(scriptUrl))()
-                end)
-                if not success then
-                    warn("Miko Hub Load Error: ", err)
-                end
+                task.wait(0.5)
+                loadstring(game:HttpGet(""))()
             ]])
         end)
     end
 end
 
--- Force save queue script continuously just in case
+-- Đăng ký giữ queue liên tục trong suốt quá trình chơi
 SaveScriptForTeleport()
+LocalPlayer.OnTeleport:Connect(function()
+    SaveScriptForTeleport()
+end)
 
 -- ================= AUTO RECONNECT FIX =================
 local isReconnecting = false
@@ -214,6 +212,8 @@ local function HopServer(reason)
     reason = reason or "Switching server..."
     
     WindUI:Notify({ Title = "Server Hop", Content = reason, Duration = 3 })
+    
+    -- Đảm bảo ép queueTeleport trước mỗi lần Hop
     SaveScriptForTeleport()
 
     task.spawn(function()
@@ -285,6 +285,7 @@ if LocalPlayer.Character then setupDeathListener(LocalPlayer.Character) end
 LocalPlayer.CharacterAdded:Connect(function(char)
     savedPosition = nil
     setupDeathListener(char)
+    SaveScriptForTeleport() -- Luôn chuẩn bị trước queue cho lần hop tiếp theo
     if Config.AntiLagEnabled then
         task.wait(1)
         EnableAntiLag()
@@ -579,4 +580,4 @@ if Config.AntiLagEnabled then
     EnableAntiLag()
 end
 
-print("MIKO HUB loaded with Fixed Auto Re-execute & Auto Hop!")
+print("MIKO HUB loaded with Permanent Auto Re-execute!")
