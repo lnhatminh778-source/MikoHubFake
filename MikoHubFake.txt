@@ -58,7 +58,7 @@ LoadConfig()
 -- Global Variables
 local ReturnToOldPos = false
 local savedPosition = nil
-local ScanDelay = 0.03                                                                                                   local InstantHoldEnabled = true
+local ScanDelay = 0.03                                                                                                       local InstantHoldEnabled = true
 local DiscordLink = "https://discord.gg/7ZgvMqEpKG"
 local isHopping = false
 
