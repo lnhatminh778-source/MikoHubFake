@@ -58,7 +58,8 @@ LoadConfig()
 -- Global Variables
 local ReturnToOldPos = false
 local savedPosition = nil
-local ScanDelay = 0.03                                                                                                                                                                                                                                    local InstantHoldEnabled = true
+local ScanDelay = 0.03
+local InstantHoldEnabled = true
 local DiscordLink = "https://discord.gg/7ZgvMqEpKG"
 local isHopping = false
 
@@ -77,7 +78,6 @@ local function SaveScriptForTeleport()
     end
 end
 
--- Đăng ký giữ queue liên tục trong suốt quá trình chơi
 SaveScriptForTeleport()
 LocalPlayer.OnTeleport:Connect(function()
     SaveScriptForTeleport()
@@ -259,12 +259,12 @@ TeleportService.TeleportInitFailed:Connect(function(player, teleportResult, erro
     if player == LocalPlayer then
         isHopping = false
         WindUI:Notify({ 
-            Title = "Hop Thất Bại!", 
-            Content = "Server full hoặc lỗi. Đang thử lại...", 
+            Title = "HopFail", 
+            Content = "Serverfull or Bug", 
             Duration = 3 
         })
         task.wait(0.5)
-        HopServer("Retry: Tìm server khác...")
+        HopServer("Retry:Find another server...")
     end
 end)
 
@@ -489,7 +489,7 @@ GodTab:Toggle({
 
 GodTab:Toggle({
     Title = "Anti-Lag / Boost FPS",
-    Desc = "Xoá bớt hiệu ứng, texture để tăng mượt tối đa",
+    Desc = "Yeah just a antilag",
     Value = Config.AntiLagEnabled,
     Callback = function(state)
         Config.AntiLagEnabled = state
