@@ -58,7 +58,7 @@ LoadConfig()
 -- Global Variables
 local ReturnToOldPos = false
 local savedPosition = nil
-local ScanDelay = 0.03                                                                                                       local InstantHoldEnabled = true
+local ScanDelay = 0.03                                                                                                                                                                                                                                    local InstantHoldEnabled = true
 local DiscordLink = "https://discord.gg/7ZgvMqEpKG"
 local isHopping = false
 
@@ -71,7 +71,7 @@ local function SaveScriptForTeleport()
                 repeat task.wait() until game:IsLoaded() and game:GetService("Players").LocalPlayer
                 _G.MIKO_HUB_RUNNING = nil
                 task.wait(0.5)
-                loadstring(game:HttpGet(""))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/lnhatminh778-source/MikoHubFake/refs/heads/main/MikoHubFake.txt"))()
             ]])
         end)
     end
