@@ -15,15 +15,8 @@ local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 
 -- Compatibility Wrappers
-local queueTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport) or (queue_for_teleport)
+local queueTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport) or (queue_for_teleport) or (Cloneref and Cloneref(game:GetService("TeleportService")).queue_on_teleport)
 local copyClipboard = setclipboard or toclipboard or function() end
-
--- Fetch Full Script Code for Auto Execution on Teleport
-local ScriptURL = "https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua" -- Lưu ý: Nếu bạn dùng Script từ Link Raw GitHub, hãy thay link vào đây
-local CurrentScriptCode = [[
-    _G.MIKO_HUB_RUNNING = nil
-    task.wait(1)
-]]
 
 -- Config
 local ConfigFileName = "MIKO_HUB_TCU_Config.json"
@@ -69,19 +62,28 @@ local ScanDelay = 0.03
 local DiscordLink = "https://discord.gg/7ZgvMqEpKG"
 local isHopping = false
 
--- Save Script for Teleport (FIXED)
+-- Save Script for Teleport (REWRITTEN & STABLE)
 local function SaveScriptForTeleport()
     if queueTeleport then
         pcall(function()
-            -- Tự động xóa cờ chạy cũ và chạy lại toàn bộ môi trường script khi vào server mới
             queueTeleport([[
-                repeat task.wait() until game:IsLoaded() and game:GetService("Players").LocalPlayer
+                repeat task.wait(0.5) until game:IsLoaded() and game:GetService("Players").LocalPlayer
+                task.wait(1)
                 _G.MIKO_HUB_RUNNING = nil
-                task.wait(0.5)
+                local scriptUrl = "https://raw.githubusercontent.com/lnhatminh778-source/MikoHubFake/refs/heads/main/MikoHubFake.txt"
+                local success, err = pcall(function()
+                    loadstring(game:HttpGet(scriptUrl))()
+                end)
+                if not success then
+                    warn("Miko Hub Load Error: ", err)
+                end
             ]])
         end)
     end
 end
+
+-- Force save queue script continuously just in case
+SaveScriptForTeleport()
 
 -- ================= AUTO RECONNECT FIX =================
 local isReconnecting = false
@@ -212,8 +214,6 @@ local function HopServer(reason)
     reason = reason or "Switching server..."
     
     WindUI:Notify({ Title = "Server Hop", Content = reason, Duration = 3 })
-    
-    -- Lưu script chạy lại trước khi thực hiện Hop
     SaveScriptForTeleport()
 
     task.spawn(function()
@@ -229,6 +229,7 @@ local function HopServer(reason)
                     if decoded and decoded.data then
                         for _, s in ipairs(decoded.data) do
                             if s.playing and s.maxPlayers and s.playing < (s.maxPlayers - 1) and s.id ~= game.JobId then
+                                SaveScriptForTeleport()
                                 TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer)
                                 success = true
                                 break
@@ -241,6 +242,7 @@ local function HopServer(reason)
         
         if not success then
             pcall(function()
+                SaveScriptForTeleport()
                 TeleportService:Teleport(game.PlaceId, LocalPlayer)
             end)
         end
@@ -577,4 +579,4 @@ if Config.AntiLagEnabled then
     EnableAntiLag()
 end
 
-print("MIKO HUB loaded with Auto-Execute on Teleport Fix!")
+print("MIKO HUB loaded with Fixed Auto Re-execute & Auto Hop!")
