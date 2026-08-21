@@ -11,12 +11,7 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 local GuiService = game:GetService("GuiService")
 local CoreGui = game:GetService("CoreGui")
 local Lighting = game:GetService("Lighting")
-
 local LocalPlayer = Players.LocalPlayer
-
--- Compatibility Wrappers
-local queueTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport) or (queue_for_teleport) or (Cloneref and Cloneref(game:GetService("TeleportService")).queue_on_teleport)
-local copyClipboard = setclipboard or toclipboard or function() end
 
 -- Config
 local ConfigFileName = "MIKO_HUB_TCU_Config.json"
@@ -29,14 +24,15 @@ local Config = {
     SpamSpeed = 0.01,
     AntiAFKEnabled = true,
     AutoReconnect = true,
-    AntiLagEnabled = false
+    AntiLagEnabled = true,
 }
 
 -- Config Handlers
 local function SaveConfig()
     if writefile then
         pcall(function()
-            writefile(ConfigFileName, HttpService:JSONEncode(Config))
+            local json = HttpService:JSONEncode(Config)
+            writefile(ConfigFileName, json)
         end)
     end
 end
@@ -44,8 +40,9 @@ end
 local function LoadConfig()
     if readfile and isfile and isfile(ConfigFileName) then
         pcall(function()
-            local decoded = HttpService:JSONDecode(readfile(ConfigFileName))
-            if type(decoded) == "table" then
+            local json = readfile(ConfigFileName)
+            local decoded = HttpService:JSONDecode(json)
+            if decoded and type(decoded) == "table" then
                 for k, v in pairs(decoded) do
                     Config[k] = v
                 end
@@ -53,6 +50,7 @@ local function LoadConfig()
         end)
     end
 end
+
 LoadConfig()
 
 -- Global Variables
@@ -77,11 +75,6 @@ local function SaveScriptForTeleport()
         end)
     end
 end
-
-SaveScriptForTeleport()
-LocalPlayer.OnTeleport:Connect(function()
-    SaveScriptForTeleport()
-end)
 
 -- ================= AUTO RECONNECT FIX =================
 local isReconnecting = false
